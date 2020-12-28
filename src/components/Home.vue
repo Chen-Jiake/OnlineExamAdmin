@@ -36,16 +36,13 @@
     </el-aside>
     <el-container>
       <el-header>
-        <span style="margin-left: 10px;" @click="toHome" class="home">在线考试系统 - 后台管理</span>
+        <span style="margin-left: 10px;"  class="home">在线考试系统 - 后台管理</span>
 
         <div>
-          <el-tooltip effect="dark" content="项目Github 卑微求Star">
-            <img
-              src="../assets/favicon.png"
-              style="height:40px; width:40px;border-radius: 50%; cursor: pointer;"
-              @click="github"
-            />
-          </el-tooltip>
+          <img
+            src="../assets/manager.jpeg"
+            style="height:40px; width:40px;border-radius: 50%; cursor: pointer;"
+          />
 &nbsp;&nbsp;&nbsp;
           <el-tooltip effect="light" content="退出登录">
             <span class="user" @click="logout">您好：{{user.userRealname}}</span>
@@ -106,9 +103,7 @@ export default {
         .catch(error => {});
     },
     //github
-    github() {
-      window.open("https://github.com/hongfurui2014/exam_online_hongfurui");
-    },
+
     //退出登录
     async logout() {
       const res = await this.$http.delete("auth/auth/logout");

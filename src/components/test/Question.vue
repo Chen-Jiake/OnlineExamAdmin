@@ -75,13 +75,13 @@
         <el-table-column label="注册时间">
           <template v-slot:default="scope">{{scope.row.questionAddtime | dateFormat}}</template>
         </el-table-column>
-        <el-table-column label="所属角色">
+        <el-table-column label="所属科目">
           <template v-slot:default="scope">{{scope.row.fkSubject.subjectName }}</template>
         </el-table-column>
         <el-table-column label="操作" width="130px;">
           <template v-slot:default="scope">
             <el-button
-              @click="updateQuestion(scope.row.questionId)"
+              @click="updateQuestion(scope.row)"
               icon="el-icon-edit"
               type="text"
               size="mini"
@@ -196,34 +196,83 @@
         <el-button @click="addQuestionDialogVisible = false" size="mini">取 消</el-button>
       </span>
     </el-dialog>
-    <!-- 修改功能模态框 -->
-    <el-dialog title="修改用户" :visible.sync="updateUserDialogVisible" width="300px">
+
+    <el-dialog title="修改试题" :visible.sync="updateQuestionDialogVisible" width="800px">
       <el-form
         label-position="right"
-        label-width="80px"
-        :model="updateUserForm"
+        label-width="150px"
+        :model="updateQuestionForm"
         :rules="questionFormRule"
         size="mini"
         ref="updateFormRef"
       >
         <el-row>
-          <el-form-item label="登录账户" prop="userAccount">
-            <el-input disabled v-model="updateUserForm.userAccount"></el-input>
+          <el-form-item label="试题题目" prop="questionTitle">
+            <el-input v-model="updateQuestionForm.questionTitle"></el-input>
           </el-form-item>
         </el-row>
         <el-row>
-          <el-form-item label="真实姓名" prop="userRealname">
-            <el-input disabled v-model="updateUserForm.userRealname"></el-input>
-          </el-form-item>
-        </el-row>
-        <el-row>
-          <el-form-item label="所属角色" prop="fkUserRoleId">
-            <el-select v-model="updateUserForm.fkUserRoleId" placeholder="- 请选择 -">
+          <el-form-item label="试题类型" prop="questionType">
+            <el-select v-model="updateQuestionForm.questionType" placeholder="- 请选择 -">
               <el-option
-                v-for="item in updateUserForm.role"
-                :key="item.roleId"
-                :label="item.roleName"
-                :value="item.roleId"
+                v-for="item in questionType"
+                :key="item.type"
+                :label="item.question"
+                :value="item.type"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+        </el-row>
+        <el-row>
+          <el-form-item label="选项A描述" prop="questionSelectA">
+            <el-input v-model="updateQuestionForm.questionSelectA"></el-input>
+          </el-form-item>
+        </el-row>
+        <el-row>
+          <el-form-item label="选项B描述" prop="questionSelectA">
+            <el-input v-model="updateQuestionForm.questionSelectB"></el-input>
+          </el-form-item>
+        </el-row>
+        <el-row>
+          <el-form-item label="选项C描述" prop="questionSelectC">
+            <el-input v-model="updateQuestionForm.questionSelectC"></el-input>
+          </el-form-item>
+        </el-row>
+        <el-row>
+          <el-form-item label="选项D描述" prop="questionSelectD">
+            <el-input v-model="updateQuestionForm.questionSelectD"></el-input>
+          </el-form-item>
+        </el-row>
+        <el-row>
+          <el-form-item label="正确答案" prop="questionYesanswer">
+            <el-input v-model="updateQuestionForm.questionYesanswer"></el-input>
+          </el-form-item>
+        </el-row>
+        <el-row>
+          <el-form-item label="分值" prop="questionScore">
+            <el-input v-model="updateQuestionForm.questionScore"></el-input>
+          </el-form-item>
+        </el-row>
+        <el-row>
+          <el-form-item label="难易程度" prop="questionLevel">
+            <el-select v-model="updateQuestionForm.questionLevel" placeholder="- 请选择 -">
+              <el-option
+                v-for="item1 in difficultyLevel"
+                :key="item1.level"
+                :label="item1.difficulty"
+                :value="item1.level"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+        </el-row>
+        <el-row>
+          <el-form-item label="试题所属科目" prop="fkQuestionSubjectId">
+            <el-select v-model="updateQuestionForm.fkQuestionSubjectId" placeholder="- 请选择 -">
+              <el-option
+                v-for="item in updateQuestionForm.subject"
+                :key="item.subjectId"
+                :label="item.subjectName"
+                :value="item.subjectId"
               ></el-option>
             </el-select>
           </el-form-item>
@@ -231,10 +280,12 @@
       </el-form>
       <!-- 确定取消按钮 -->
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="updateUserYes" size="mini">确 定</el-button>
-        <el-button @click="updateUserDialogVisible = false" size="mini">取 消</el-button>
+        <el-button type="primary" @click="updateQuestionYes" size="mini">确 定</el-button>
+        <el-button @click="updateQuestionDialogVisible = false" size="mini">取 消</el-button>
       </span>
     </el-dialog>
+    <!-- 修改功能模态框 -->
+    
   </div>
 </template>
 
@@ -280,6 +331,21 @@ export default {
         subject: [],
         fkQuestionSubjectId: ""
       },
+      //update Question
+      updateQuestionForm: {
+        questionId: 0,
+        questionTitle: "",
+        questionType: "",
+        questionSelectA: "",
+        questionSelectB: "",
+        questionSelectC: "",
+        questionSelectD: "",
+        questionYesanswer: "",
+        questionScore: 0,
+        questionLevel: "",
+        subject: [],
+        fkQuestionSubjectId: ""
+      },
       //修改form
       updateUserForm: {
         questionId: "",
@@ -290,7 +356,7 @@ export default {
         questionSelectC: "",
         questionSelectD: "",
         questionYesanswer: "",
-        questionScore: "",
+        questionScore: 0,
         questionLevel: "",
         subject: [],
         fkQuestionSubjectId: ""
@@ -326,7 +392,6 @@ export default {
         ],
         questionScore: [
           { required: true, message: "请输入分值", trigger: "blur" },
-          { min: 1, max: 11, message: "长度在 1 到 11 个字符", trigger: "blur" }
         ],
         questionLevel: [
           { required: true, message: "请选择难易程度", trigger: "blur" },
@@ -337,6 +402,8 @@ export default {
       },
       //添加模态框是否显示
       addQuestionDialogVisible: false,
+      //
+      updateQuestionDialogVisible: false,
       //修改模态框是否显示
       updateUserDialogVisible: false
     };
@@ -349,6 +416,97 @@ export default {
     this.getQuestions();
   },
   methods: {
+      updateQuestionYes(){
+        this.$refs.updateFormRef.validate(valid => {
+          if (valid) {
+            //校验通过
+            this.$http
+              .put("test/question/updateQuestion", this.updateQuestionForm)
+              .then(response => {
+                const res = response.data;
+                if (res.httpCode === 201) {
+                  this.updateQuestionDialogVisible = false;
+                  this.getQuestions();
+                  this.$notify.success({
+                    title: res.message
+                  });
+                }
+              })
+              .catch(error => {
+                this.$notify.error({
+                  title: "pre:AuthorizationFilter" ? "抱歉，您的权限暂未开放，请联系系统管理员！" : error.respon.data.message
+                });
+              });
+          }
+        }); 
+        
+      },
+      deleteQuestion(questionid) {
+        this.$confirm("此操作将永久删除该试题,是否继续?", "提示", {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        })
+          .then(() => {
+            //删除
+            this.$http
+              .delete("test/question/delQuestionById", {
+                params: {
+                  questionId: questionid
+                }
+              })
+              .then(response => {
+                const res = response.data;
+                if (res.httpCode === 204) {
+                  this.$notify.success({
+                    title: res.message
+                  });
+                  this.getQuestions();
+                } else if (res.httpCode === 600) {
+                  this.$notify.error({
+                    title: res.message
+                  });
+                }
+              })
+              .catch(error => {
+                console.log(error);
+                this.$notify.error({
+                  title: "pre:AuthorizationFilter" ? "抱歉，您的权限暂未开放，请联系系统管理员！" : error.respon.data.message
+                });
+              })    
+            })        
+              .catch(() => {});
+      },
+    updateQuestion(question){
+        this.$http
+              .get("test/question/canUpdateQuestion", {
+                params: {
+                  questionId: question.questionId
+                }
+              })
+              .then(response => {
+                const res = response.data;
+                if (res.httpCode === 204) {
+                  // this.$notify.success({
+                  //   title: res.message
+                  // });
+                  this.updateQuestionBefore(question);
+                  this.getQuestions();
+                } 
+                else if (res.httpCode === 600) {
+                  this.$notify.error({
+                    title: res.message
+                  });
+                }
+              })
+              .catch(error => {
+                console.log(error);
+                this.$notify.error({
+                  title: "pre:AuthorizationFilter" ? "抱歉，您的权限暂未开放，请联系系统管理员！" : error.respon.data.message
+                });
+              })
+
+    },
     //为搜索表单添加角色列表
     getSearchSubjects() {
       this.$http
@@ -375,6 +533,23 @@ export default {
           if (res.httpCode === 200) {
             this.addQuestionForm.subject = res.data;
             this.addQuestionForm.fkQuestionSubjectId = this.addQuestionForm.subject[0].subjectId;
+          }
+        })
+        .catch(error => {
+          console.log(error);
+          this.$notify.error({
+            title: error.response.data.message
+          });
+        });
+    },
+    getUpdateSubjects() {
+      this.$http
+        .get("school/subject/findSubjects")
+        .then(response => {
+          const res = response.data;
+          if (res.httpCode === 200) {
+            this.updateQuestionForm.subject = res.data;
+            // this.updateQuestionForm.fkQuestionSubjectId = this.updateQuestionForm.subject[0].subjectId;
           }
         })
         .catch(error => {
@@ -576,6 +751,21 @@ export default {
         (this.addQuestionForm.questionLevel = 0),
         this.getAddSubjects(),
           (this.addQuestionDialogVisible = true)
+    },
+    updateQuestionBefore(question) {
+      (this.updateQuestionForm.questionId = question.questionId),
+        (this.updateQuestionForm.questionTitle = question.questionTitle),
+        (this.updateQuestionForm.questionType = question.questionType),
+        (this.updateQuestionForm.questionSelectA = question.questionSelectA),
+        (this.updateQuestionForm.questionSelectB = question.questionSelectB),
+        (this.updateQuestionForm.questionSelectC = question.questionSelectC),
+        (this.updateQuestionForm.questionSelectD = question.questionSelectD),
+        (this.updateQuestionForm.questionYesanswer = question.questionYesanswer),
+        (this.updateQuestionForm.questionScore = question.questionScore),
+        (this.updateQuestionForm.questionLevel = question.questionLevel),
+        this.getUpdateSubjects(),
+        (this.updateQuestionForm.fkQuestionSubjectId = question.fkQuestionSubjectId),
+        (this.updateQuestionDialogVisible = true)
     }
   }
 };

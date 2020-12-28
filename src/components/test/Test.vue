@@ -75,7 +75,7 @@
         <el-table-column label="操作" width="130px;">
           <template v-slot:default="scope">
             <el-button
-              @click="updateUser(scope.row.testId)"
+              @click="updateTest(scope.row)"
               icon="el-icon-edit"
               type="text"
               size="mini"
@@ -197,6 +197,7 @@
         <el-button @click="addTestDialogVisible = false" size="mini">取 消</el-button>
       </span>
     </el-dialog>
+    
     <!-- 修改功能模态框 -->
     <el-dialog title="修改用户" :visible.sync="updateUserDialogVisible" width="300px">
       <el-form
@@ -205,7 +206,7 @@
         :model="updateUserForm"
         :rules="testFormRule"
         size="mini"
-        ref="updateFormRef"
+        ref="addFormRef"
       >
         <el-row>
           <el-form-item label="登录账户" prop="userAccount">
@@ -234,6 +235,101 @@
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="updateUserYes" size="mini">确 定</el-button>
         <el-button @click="updateUserDialogVisible = false" size="mini">取 消</el-button>
+      </span>
+    </el-dialog>
+    <!-- xiugai功能模态框 -->
+    <el-dialog title="修改试卷" :visible.sync="updateTestDialogVisible" width="800px">
+      <el-form
+        label-position="right"
+        label-width="150px"
+        :model="updateTestForm"
+        :rules="testFormRule"
+        size="mini"
+        ref="updateFormRef"
+      >
+        <el-row>
+          <el-form-item label="试卷标题" prop="testName">
+            <el-input v-model="updateTestForm.testName"></el-input>
+          </el-form-item>
+        </el-row>
+        <el-row>
+          <el-form-item label="考试开放时间" prop="testBeforetime">
+            <el-date-picker
+              v-model="updateTestForm.testBeforetime"
+              type="datetime"
+              placeholder="选择考试开放时间"
+              default-time="00:00:00"
+              value-format="yyyy-MM-dd HH:mm:ss">
+            </el-date-picker>
+          </el-form-item>
+        </el-row>
+        <el-row>
+          <el-form-item label="考试关闭时间" prop="testAftertime">
+            <el-date-picker
+              v-model="updateTestForm.testAftertime"
+              type="datetime"
+              placeholder="选择考试关闭时间"
+              default-time="00:00:00"
+              value-format="yyyy-MM-dd HH:mm:ss">
+            </el-date-picker>
+          </el-form-item>
+        </el-row>
+        <el-row>
+          <el-form-item label="考试时长（分钟）" prop="testTimesum">
+            <el-input v-model="updateTestForm.testTimesum"></el-input>
+          </el-form-item>
+        </el-row>
+        <el-row>
+          <el-form-item label="单选题数" prop="testSelectOneSum">
+            <el-input v-model="updateTestForm.testSelectOneSum"></el-input>
+          </el-form-item>
+        </el-row>
+        <el-row>
+          <el-form-item label="多选题数" prop="testSelectMoreSum">
+            <el-input v-model="updateTestForm.testSelectMoreSum"></el-input>
+          </el-form-item>
+        </el-row>
+        <el-row>
+          <el-form-item label="难易程度" prop="questionLevel">
+            <el-select v-model="this.testLevel" placeholder="- 请选择 -">
+              <el-option
+                v-for="item1 in difficultyLevel"
+                :key="item1.level"
+                :label="item1.difficulty"
+                :value="item1.level"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+        </el-row>
+        <el-row>
+          <el-form-item label="所属科目" prop="fkQuestionSubjectId">
+            <el-select v-model="updateTestForm.fkTestSubjectId" placeholder="- 请选择 -">
+              <el-option
+                v-for="item in subject"
+                :key="item.subjectId"
+                :label="item.subjectName"
+                :value="item.subjectId"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+        </el-row>
+        <el-row>
+          <el-form-item label="所属班级" prop="fkQuestionGradetId">
+            <el-select v-model="updateTestForm.fkTestGradeId" placeholder="- 请选择 -">
+              <el-option
+                v-for="item in grade"
+                :key="item.gradeId"
+                :label="item.gradeName"
+                :value="item.gradeId"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+        </el-row>
+      </el-form>
+      <!-- 确定取消按钮 -->
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="updateTestYes()" size="mini">确 定</el-button>
+        <el-button @click="updateTestDialogVisible = false" size="mini">取 消</el-button>
       </span>
     </el-dialog>
   </div>
@@ -278,6 +374,20 @@
           fkTestSubjectId: "",
           testSelectOneSum: "",
           testSelectMoreSum: "",
+          testDiffSum: ""
+        },
+        updateTestForm: {
+          testName: "",
+          testBeforetime: "",
+          testAftertime: "",
+          testTimesum: "",
+          fkTestGradeId: "",
+          fkTestSubjectId: "",
+          testPass: "",
+          testSelectOneSum: "",
+          testSelectMoreSum: "",
+          testSimpleSum: "",
+          testMiddleSum: "",
           testDiffSum: ""
         },
         //修改form
@@ -350,7 +460,12 @@
         //添加模态框是否显示
         addTestDialogVisible: false,
         //修改模态框是否显示
-        updateUserDialogVisible: false
+        updateTestDialogVisible: false,
+        //
+        updateUserDialogVisible: false,
+
+        updateTextId: 0
+        
       };
     },
     //钩子函数，已加载完成
@@ -409,6 +524,23 @@
             });
           });
       },
+      getUpdateSubjects() {
+        this.$http
+          .get("school/subject/findSubjects")
+          .then(response => {
+            const res = response.data;
+            if (res.httpCode === 200) {
+              this.subject = res.data;
+              // this.updateTestForm.fkTestSubjectId = this.subject[0].subjectId;
+            }
+          })
+          .catch(error => {
+            console.log(error);
+            this.$notify.error({
+              title: error.response.data.message
+            });
+          });
+      },
       getAddGrades() {
         this.$http
           .get("school/grade/findGrades")
@@ -417,6 +549,22 @@
             if (res.httpCode === 200) {
               this.grade = res.data;
               this.addTestForm.fkTestGradeId = this.grade[0].gradeId;
+            }
+          })
+          .catch(error => {
+            this.$notify.error({
+              title: error.response.data.message
+            });
+          });
+      },
+      getUpdateGrades() {
+        this.$http
+          .get("school/grade/findGrades")
+          .then(response => {
+            const res = response.data;
+            if (res.httpCode === 200) {
+              this.grade = res.data;
+              // this.updateTestForm.fkTestGradeId = this.grade[0].gradeId;
             }
           })
           .catch(error => {
@@ -442,6 +590,7 @@
             });
           });
       },
+      
       //搜索
       searchTests() {
         this.queryInfo.page = 1;
@@ -485,7 +634,7 @@
           })
           .catch(error => {
             this.$notify.error({
-              title: "pre:AuthorizationFilter" ? "抱歉，您咱没有权限查看后台用户列表！" : error.respon.data.message
+              title: "pre:AuthorizationFilter" ? "抱歉，您没有权限查看后台用户列表！" : error.respon.data.message
             });
           });
       },
@@ -516,9 +665,42 @@
           }
         });
       },
+      updateTestYes(){
+        this.testLevelVo.test = this.updateTestForm
+        this.testLevelVo.level = this.testLevel
+        this.$refs.updateFormRef.validate(valid => {
+          if (valid) {
+            //校验通过
+            this.$http
+              .post("test/test/addTest", this.testLevelVo)
+              .then(response => {
+                const res = response.data;
+                if (res.httpCode === 201) {
+                  this.$http
+                    .delete("test/test/delTestById", {
+                      params: {
+                        testId: this.updateTextId
+                      }
+                    })
+                  this.updateTestDialogVisible = false;
+                  this.updateTextId = 0;
+                  this.getTests();
+                  this.$notify.success({
+                    title: res.message
+                  });
+                }
+              })
+              .catch(error => {
+                this.$notify.error({
+                  title: "pre:AuthorizationFilter" ? "抱歉，您的权限暂未开放，请联系系统管理员！" : error.respon.data.message
+                });
+              });
+          }
+        });
+      },
       //删除
       deleteTest(testId) {
-        this.$confirm("此操作将永久删除该试卷, 是否继续?", "提示", {
+        this.$confirm("此操作将永久删除该试卷, 并删除所有已参加该考试的记录,是否继续?", "提示", {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
           type: "warning"
@@ -537,7 +719,6 @@
                   this.$notify.success({
                     title: res.message
                   });
-                  this.queryInfo.page = 1;
                   this.getTests();
                 } else if (res.httpCode === 600) {
                   this.$notify.error({
@@ -553,6 +734,40 @@
               });
           })
           .catch(() => {});
+      },
+      //
+      updateTest(test){
+        this.$http
+              .get("test/test/canTestUpdate", {
+                params: {
+                  testId: test.testId
+                }
+              })
+              .then(response => {
+                const res = response.data;
+                if (res.httpCode === 204) {
+                  
+                  this.updateTextId = test.testId;
+                  this.updateTestBefore(test);
+                  // this.$notify.success({
+                  //   title: res.message
+                  // });
+                } else if (res.httpCode === 600) {
+                  this.$notify.error({
+                    title: res.message
+                  });
+                }
+              })
+              .catch(error => {
+                console.log(error);
+                this.$notify.error({
+                  title: "pre:AuthorizationFilter" ? "抱歉，您的权限暂未开放，请联系系统管理员！" : error.respon.data.message
+                });
+              });
+        
+        
+        
+
       },
       //修改
       updateUser(userId) {
@@ -623,6 +838,29 @@
           this.getAddSubjects(),
           this.getAddGrades(),
           (this.addTestDialogVisible = true)
+      },
+      updateTestBefore(test) {
+        
+          (this.updateTestForm.testName = test.testName),
+          (this.updateTestForm.testBeforetime = test.testBeforetime),
+          (this.updateTestForm.testAftertime = test.testAftertime),
+          (this.updateTestForm.testTimesum = test.testTimesum+""),
+          (this.updateTestForm.testPass = test.testPass),
+          (this.updateTestForm.fkTestGradeId = test.fkTestGradeId),
+          (this.updateTestForm.fkTestSubjectId = test.fkTestSubjectId),
+          (this.updateTestForm.testSelectOneSum = test.testSelectOneSum+""),
+          (this.updateTestForm.testSelectMoreSum = test.testSelectMoreSum+""),
+          (this.updateTestForm.testSimpleSum = test.testSimpleSum),
+          (this.updateTestForm.testMiddleSum = test.testMiddleSum),
+          (this.updateTestForm.testDiffSum = test.testDiffSum),
+          this.testLevel = 0,
+          this.getUpdateSubjects(),
+          (this.updateTestForm.fkTestSubjectId = test.fkTestSubjectId),
+          this.getUpdateGrades(),
+          (this.updateTestForm.fkTestGradeId = test.fkTestGradeId),
+          (this.updateTestDialogVisible = true)
+          
+          
       }
     }
   };

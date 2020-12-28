@@ -13,8 +13,8 @@ import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 
 import axios from 'axios'
-// axios.defaults.baseURL = "http://zuul.itdupan.com/api/"	//可以设置根路径
-axios.defaults.baseURL = "http://localhost:10011/api/"	//可以设置根路径
+axios.defaults.baseURL = "http://39.102.128.251:10011/api/"
+//axios.defaults.baseURL = "http://localhost:10011/api/"
 
 // 允许携带cookie
 axios.defaults.withCredentials = true
