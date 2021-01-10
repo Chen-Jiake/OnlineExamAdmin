@@ -197,47 +197,8 @@
         <el-button @click="addTestDialogVisible = false" size="mini">取 消</el-button>
       </span>
     </el-dialog>
-    
-    <!-- 修改功能模态框 -->
-    <el-dialog title="修改用户" :visible.sync="updateUserDialogVisible" width="300px">
-      <el-form
-        label-position="right"
-        label-width="80px"
-        :model="updateUserForm"
-        :rules="testFormRule"
-        size="mini"
-        ref="addFormRef"
-      >
-        <el-row>
-          <el-form-item label="登录账户" prop="userAccount">
-            <el-input disabled v-model="updateUserForm.userAccount"></el-input>
-          </el-form-item>
-        </el-row>
-        <el-row>
-          <el-form-item label="真实姓名" prop="userRealname">
-            <el-input disabled v-model="updateUserForm.userRealname"></el-input>
-          </el-form-item>
-        </el-row>
-        <el-row>
-          <el-form-item label="所属角色" prop="fkUserRoleId">
-            <el-select v-model="updateUserForm.fkUserRoleId" placeholder="- 请选择 -">
-              <el-option
-                v-for="item in updateUserForm.role"
-                :key="item.roleId"
-                :label="item.roleName"
-                :value="item.roleId"
-              ></el-option>
-            </el-select>
-          </el-form-item>
-        </el-row>
-      </el-form>
-      <!-- 确定取消按钮 -->
-      <span slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="updateUserYes" size="mini">确 定</el-button>
-        <el-button @click="updateUserDialogVisible = false" size="mini">取 消</el-button>
-      </span>
-    </el-dialog>
-    <!-- xiugai功能模态框 -->
+
+    <!-- 修改 -->
     <el-dialog title="修改试卷" :visible.sync="updateTestDialogVisible" width="800px">
       <el-form
         label-position="right"
@@ -390,22 +351,6 @@
           testMiddleSum: "",
           testDiffSum: ""
         },
-        //修改form
-        updateUserForm: {
-          testName: "",
-          testBeforetime: "",
-          testAftertime: "",
-          testTimesum: "",
-          testPass: "",
-          fkTestGradeId: "",
-          fkTestSubjectId: "",
-          testSelectOneSum: "",
-          testSelectMoreSum: "",
-          testJudgeSum: "",
-          testSimpleSum: "",
-          testMiddleSum: "",
-          testDiffSum: ""
-        },
         testLevelVo: {
           test: "",
           level: ""
@@ -461,11 +406,8 @@
         addTestDialogVisible: false,
         //修改模态框是否显示
         updateTestDialogVisible: false,
-        //
-        updateUserDialogVisible: false,
-
         updateTextId: 0
-        
+
       };
     },
     //钩子函数，已加载完成
@@ -590,7 +532,7 @@
             });
           });
       },
-      
+
       //搜索
       searchTests() {
         this.queryInfo.page = 1;
@@ -600,8 +542,8 @@
       clear() {
         this.queryInfo.page = 1;
         this.queryInfo.questionType = "";
-        this.queryInfo.questionLevel = "";
-        this.queryInfo.fkQuestionSubjectId = "";
+        this.queryInfo.fkTestGradeId = "";
+        this.queryInfo.fkTestSubjectId = "";
         this.getTests();
       },
       //每页显示多少条改变
@@ -659,7 +601,7 @@
               })
               .catch(error => {
                 this.$notify.error({
-                  title: "pre:AuthorizationFilter" ? "抱歉，您的权限暂未开放，请联系系统管理员！" : error.respon.data.message
+                  title: error.response.data.message
                 });
               });
           }
@@ -746,7 +688,7 @@
               .then(response => {
                 const res = response.data;
                 if (res.httpCode === 204) {
-                  
+
                   this.updateTextId = test.testId;
                   this.updateTestBefore(test);
                   // this.$notify.success({
@@ -764,9 +706,9 @@
                   title: "pre:AuthorizationFilter" ? "抱歉，您的权限暂未开放，请联系系统管理员！" : error.respon.data.message
                 });
               });
-        
-        
-        
+
+
+
 
       },
       //修改
@@ -840,7 +782,7 @@
           (this.addTestDialogVisible = true)
       },
       updateTestBefore(test) {
-        
+
           (this.updateTestForm.testName = test.testName),
           (this.updateTestForm.testBeforetime = test.testBeforetime),
           (this.updateTestForm.testAftertime = test.testAftertime),
@@ -859,8 +801,8 @@
           this.getUpdateGrades(),
           (this.updateTestForm.fkTestGradeId = test.fkTestGradeId),
           (this.updateTestDialogVisible = true)
-          
-          
+
+
       }
     }
   };

@@ -64,15 +64,19 @@
       <el-table :data="tableData" stripe border style="text-align: center">
         <el-table-column type="index" label="#"></el-table-column>
         <el-table-column prop="questionTitle" label="试题题目"></el-table-column>
-        <el-table-column prop="questionType" label="试题类型"></el-table-column>
+        <el-table-column prop="questionType" label="试题类型">
+          <template v-slot:default="scope">{{questionType[scope.row.questionType].question}}</template>
+        </el-table-column>
         <el-table-column prop="questionSelectA" label="选项A描述"></el-table-column>
         <el-table-column prop="questionSelectB" label="选项B描述"></el-table-column>
         <el-table-column prop="questionSelectC" label="选项C描述"></el-table-column>
         <el-table-column prop="questionSelectD" label="选项D描述"></el-table-column>
         <el-table-column prop="questionYesanswer" label="正确答案"></el-table-column>
         <el-table-column prop="questionScore" label="分值"></el-table-column>
-        <el-table-column prop="questionLevel" label="难易程度"></el-table-column>
-        <el-table-column label="注册时间">
+        <el-table-column prop="questionLevel" label="难易程度">
+          <template v-slot:default="scope">{{difficultyLevel[scope.row.questionLevel].difficulty}}</template>
+        </el-table-column>
+        <el-table-column label="添加时间">
           <template v-slot:default="scope">{{scope.row.questionAddtime | dateFormat}}</template>
         </el-table-column>
         <el-table-column label="所属科目">
@@ -285,7 +289,7 @@
       </span>
     </el-dialog>
     <!-- 修改功能模态框 -->
-    
+
   </div>
 </template>
 
@@ -438,8 +442,8 @@ export default {
                 });
               });
           }
-        }); 
-        
+        });
+
       },
       deleteQuestion(questionid) {
         this.$confirm("此操作将永久删除该试题,是否继续?", "提示", {
@@ -473,8 +477,8 @@ export default {
                 this.$notify.error({
                   title: "pre:AuthorizationFilter" ? "抱歉，您的权限暂未开放，请联系系统管理员！" : error.respon.data.message
                 });
-              })    
-            })        
+              })
+            })
               .catch(() => {});
       },
     updateQuestion(question){
@@ -492,7 +496,7 @@ export default {
                   // });
                   this.updateQuestionBefore(question);
                   this.getQuestions();
-                } 
+                }
                 else if (res.httpCode === 600) {
                   this.$notify.error({
                     title: res.message

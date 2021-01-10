@@ -14,7 +14,7 @@ import Statistics from '../components/test/Statistics'
 import InfoList from '../components/info/InfoList'
 
 import axios from 'axios'
-axios.defaults.baseURL = "http://39.102.128.251:10011/api/"
+axios.defaults.baseURL = "http://ip:10011/api/"
 //axios.defaults.baseURL = "http://localhost:10011/api/"
 // 允许携带cookie
 axios.defaults.withCredentials = true
@@ -22,8 +22,8 @@ axios.defaults.withCredentials = true
 Vue.use(Router)
 
 const router = new Router({
-  base:'/manage/',
-  mode:'history',
+  base:'',
+  //mode:'history',
   routes: [
     {
       path: '/',

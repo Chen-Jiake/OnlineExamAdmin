@@ -209,9 +209,8 @@
       //清空搜索
       clear() {
         this.queryInfo.page = 1;
-        this.queryInfo.questionType = "";
-        this.queryInfo.questionLevel = "";
-        this.queryInfo.fkQuestionSubjectId = "";
+        this.queryInfo.fkTestSubjectId = "";
+        this.queryInfo.fkTestGradeId = "";
         this.getResults();
       },
       //每页显示多少条改变

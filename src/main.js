@@ -13,7 +13,7 @@ import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 
 import axios from 'axios'
-axios.defaults.baseURL = "http://39.102.128.251:10011/api/"
+axios.defaults.baseURL = "http://ip:10011/api/"
 //axios.defaults.baseURL = "http://localhost:10011/api/"
 
 // 允许携带cookie
@@ -41,7 +41,6 @@ axios.interceptors.response.use(function (config) {
     return Promise.reject(error);
   }
 );
-
 Vue.prototype.$http = axios
 
 Vue.config.productionTip = false
