@@ -22,7 +22,12 @@
 3. 学校操作：对班级和科目进行管理
 4. 统计日志：查看系统重要操作日志
 
-## 如何将后台管理界面部署到阿里云
+## 在本机配置后台管理界面——以ubuntu18.04为例
+1. 配置环境：nodejs、np
+2. 执行npm install
+3. 执行npm run dev 
+
+## 利用 docker 将后台管理界面部署到阿里云
 1. 执行npm run build打包
 2. 把生成的dist文件夹和Dockerfile文件上传到服务器
 3. 执行docker build -t exam-admin . 生成镜像
